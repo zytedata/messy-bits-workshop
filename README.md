@@ -1,6 +1,38 @@
-# messy-bits-workshop
+# AI for the messy bits
 
-> Created from **zyte-service-template** by the Zyte repo governance portal.
+Parsing, cleaning, normalizing: the hands-on workshop from Extract Summit
+2026. Everything here runs offline.
+
+## Setup
+
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/).
+2. `git clone https://github.com/zytedata/messy-bits-workshop && cd messy-bits-workshop`
+3. `uv sync`
+
+Do this before the event: `uv sync` also downloads a matching Python if you
+do not have one.
+
+## Running things
+
+From the directory of the script:
+
+```
+cd demo && uv run 01_parsing.py
+cd exercise && uv run starter.py
+```
+
+For the `# %%` cells in VS Code, open this folder and pick `.venv` as the
+interpreter.
+
+## Layout
+
+- `hook/`: two LLM answers to the same prompt, quoted on the opening and
+  closing slides, plus the prompt that produced them.
+- `demo/`: the three live-coding scripts and the sample pages they read.
+- `exercise/`: the hands-on. Start from `starter.py`, see `README.md` there.
+- `slides.md`: the deck, in [Marp](https://marp.app/) format.
+- `tests/`: `uv run pytest` checks that every script still prints what the
+  slides say it does.
 
 ## Governance model
 
@@ -35,7 +67,3 @@ pre-commit run --all-files
 # If you add a legitimate, reviewed value that trips the scanner, audit it:
 #   detect-secrets scan > .secrets.baseline   # then review the diff in your PR
 ```
-
-## License
-
-See [LICENSE](LICENSE) — replace the placeholder with your chosen license.
