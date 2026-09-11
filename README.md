@@ -1,4 +1,4 @@
-# {{REPO_NAME}}
+# messy-bits-workshop
 
 > Created from **zyte-service-template** by the Zyte repo governance portal.
 
