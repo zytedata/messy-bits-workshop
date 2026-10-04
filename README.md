@@ -9,8 +9,8 @@ Parsing, cleaning, normalizing: the hands-on workshop from Extract Summit
 2. `git clone https://github.com/zytedata/messy-bits-workshop && cd messy-bits-workshop`
 3. `uv sync`
 
-Do this before the event: `uv sync` also downloads a matching Python if you
-do not have one.
+Run `uv sync` as soon as you can: it downloads Python and all dependencies,
+which takes a while on conference Wi-Fi.
 
 ## Running things
 

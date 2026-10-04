@@ -2,6 +2,9 @@
 marp: true
 theme: default
 paginate: true
+header: '![h:80](setup-qr.svg)'
+style: |
+  header { left: auto; right: 30px; }
 ---
 
 # AI for the messy bits
@@ -19,15 +22,13 @@ Extract Summit 2026
 - "Listed 5 days ago"
 - "Ships from our Reno warehouse within 2-3 business days..."
 
-`exercise/messy_page.html` is all of this, toy-sized so it fits on a screen.
-The real thing is 300 KB of it.
+`exercise/messy_page.html` is all of this, toy-sized so it fits on a screen. The real thing is 300 KB of it.
 
 ---
 
 ## What an assistant writes for it today
 
-Asked for a parsel-based extractor for a trimmed version of this page, no
-other instructions (`hook/vanilla.py`):
+Asked for a parsel-based extractor for a trimmed version of this page, no other instructions (`hook/vanilla.py`):
 
 ```python
 price = float(f"{dollars}.{cents}")
@@ -58,17 +59,13 @@ Runs. Passes on this page. Four regexes you now own.
 
 ## Thesis
 
-**Use the right tool for the job — in the code, whether you write it
-or an LLM does.**
+**Use the right tool for the job — in the code, whether you write it or an LLM does.**
 
-Increasingly, an LLM writes the scraper *once*. Parsing then runs as
-ordinary generated code — not a live LLM call on every page. The risk is
-that the LLM (or you) reaches for a regex where a library already exists.
+Increasingly, an LLM writes the scraper *once*. Parsing then runs as ordinary generated code — not a live LLM call on every page. The risk is that the LLM (or you) reaches for a regex where a library already exists.
 
 Every library today is from the Scrapy / Zyte ecosystem.
 
-*(not today: detecting a broken parser and having an LLM fix it — that's
-a separate workshop on self-healing)*
+*(detecting a broken parser and having an LLM fix it is the self-healing workshop, later today)*
 
 ---
 
@@ -82,10 +79,7 @@ a separate workshop on self-healing)*
 
 Not one field's markup — the whole site's layout, inconsistently.
 
-Maintaining per-template selectors stops paying off. Full-page AI
-extraction (e.g. [Zyte API’s](https://docs.zyte.com/zyte-api/usage/extract.html))
-can beat hand-written selectors on **quality per engineering hour** at that
-point.
+Maintaining per-template selectors stops paying off. Full-page AI extraction (e.g. [Zyte API’s](https://docs.zyte.com/zyte-api/usage/extract.html)) can beat hand-written selectors on **quality per engineering hour** at that point.
 
 *A different tier of decision. Not a per-field AI call.*
 
@@ -105,15 +99,9 @@ point.
 
 ## The long tail, scoped and cached
 
-One narrow, schema-constrained LLM call for *that field* — not a fallback
-to calling an LLM on the whole page, and not a regex either.
+One narrow, schema-constrained LLM call for *that field* — not a fallback to calling an LLM on the whole page, and not a regex either.
 
-Scoped to the field also means a small, cheap model is enough: a shipping
-string plus a four-field schema is an easy task, a whole page is not. And
-the input repeats. A site with thousands of products has tens of distinct
-shipping strings; `@lru_cache` on `extract_shipping(text)` and the LLM runs
-tens of times per crawl, not thousands. Same trick as caching OCR per image
-hash when prices are images.
+Scoped to the field also means a small, cheap model is enough: a shipping string plus a four-field schema is an easy task, a whole page is not. And the input repeats. A site with thousands of products has tens of distinct shipping strings; `@lru_cache` on `extract_shipping(text)` and the LLM runs tens of times per crawl, not thousands. Same trick as caching OCR per image hash when prices are images.
 
 ---
 
@@ -151,8 +139,7 @@ Bonus: the schema *and* the prompt for the shipping field.
 
 ## Same prompt, checklist loaded
 
-`hook/with_checklist.py` — the hook prompt again, with the six lines above
-prepended:
+`hook/with_checklist.py` — the hook prompt again, with the six lines above prepended:
 
 ```python
 price = extract_price(sel.css(".price")[0])
@@ -168,27 +155,17 @@ shipping = extract_shipping(sel.css(".shipping::text").get())
 
 Zero regexes. Six lines of instructions did that.
 
-Four fields, still no `business_days`: the checklist picks the libraries,
-the schema is still yours to check.
+Four fields, still no `business_days`: the checklist picks the libraries, the schema is still yours to check.
 
 ---
 
 ## Parting notes
 
-[zytedata/skills](https://github.com/zytedata/skills) is those six lines,
-maintained, for your coding assistant — no need to write your own
-instructions telling it to reach for `zyte_parsers` over regex.
+[zytedata/skills](https://github.com/zytedata/skills) is those six lines, maintained, for your coding assistant — no need to write your own instructions telling it to reach for `zyte_parsers` over regex.
 
-[scrapy-agent-plugin](https://github.com/scrapy/scrapy-agent-plugin) is the
-Scrapy-only counterpart: a Scrapy skill for the same assistants.
+[scrapy-agent-plugin](https://github.com/scrapy/scrapy-agent-plugin) is the Scrapy-only counterpart: a Scrapy skill for the same assistants.
 
-[web-poet](https://github.com/scrapinghub/web-poet), Zyte's page-object
-library: parsing code that is testable by default, a fixture being the saved
-response plus the JSON it should produce.
+[web-poet](https://github.com/scrapinghub/web-poet), Zyte's page-object library: parsing code that is testable by default, a fixture being the saved response plus the JSON it should produce.
 
----
+[Zyte MCP](https://docs.zyte.com/zyte-web-data/mcp.html) lets your assistant use Zyte directly: fetch pages, extract data, search the web, and work with your Scrapy Cloud projects.
 
-# Thanks
-
-Repo: https://github.com/zytedata/messy-bits-workshop
-Only prerequisite: `uv`. `uv sync` — everything in this talk, offline
