@@ -1,0 +1,11 @@
+services:
+  workshop:
+    build: .
+    # Run as your own user so files saved from Jupyter aren't root-owned (Linux).
+    # Defaults to 1000:1000; run `UID=$(id -u) GID=$(id -g) docker compose up` if yours differs.
+    user: "${UID:-1000}:${GID:-1000}"
+    ports: ["127.0.0.1:8888:8888"]
+    environment:
+      - HOME=/tmp
+      - ANTHROPIC_API_KEY  # optional, only hook/with_checklist.ipynb needs it
+    volumes: [".:/workshop"]  # edits persist on your machine
