@@ -159,6 +159,36 @@ Four fields, still no `business_days`: the checklist picks the libraries, the sc
 
 ---
 
+## Checking the output: Jev
+
+Everything so far *extracts*. Nothing says the extraction is still right next month.
+
+[Jev](https://typesafe.ai/) is TypeSafe AI's "System One" model. It doesn't generate text: you give it a `state` and typed questions, and it returns calibrated probabilities. For us: "is this a plausible product name?" → `0.99`.
+
+[scrapy-jev](https://github.com/jhnwr/scrapy-jev) wraps that as a Scrapy item pipeline:
+
+- you list a few `JEV_FIELDS` to spot-check
+- it scores the first `JEV_SAMPLE_SIZE` items; an empty field counts as a fail
+- if the pass rate drops below the threshold, the spider stops
+
+A selector drifts, a field comes back empty or wrong, and the crawl halts instead of silently shipping bad data.
+
+---
+
+## Demo: page objects + Jev
+
+`dublin/scrapy_project/` — the solution's functions inside a scrapy-poet page object, with `name` and `price` checked by Jev.
+
+```
+cd dublin/scrapy_project
+export TYPESAFE_API_TOKEN=...
+scrapy crawl messy
+```
+
+Then break a selector (`.product h1::text` → `.nope`) and run again: empty `name`, the gate fails, the spider stops.
+
+---
+
 ## Parting notes
 
 [zytedata/skills](https://github.com/zytedata/skills) is those six lines, maintained, for your coding assistant — no need to write your own instructions telling it to reach for `zyte_parsers` over regex.

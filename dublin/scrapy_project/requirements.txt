@@ -1,0 +1,7 @@
+scrapy>=2.14
+scrapy-poet
+scrapy-jev
+zyte-common-items
+zyte-parsers
+clear-html
+lxml

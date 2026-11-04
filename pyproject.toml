@@ -12,6 +12,7 @@ dependencies = [
     "lxml",
     "parsel",
     "price-parser",
+    "scrapy-jev>=0.1.0",
     "w3lib",
     "zyte-parsers",
 ]
