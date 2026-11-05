@@ -14,6 +14,8 @@ ADDONS = {
 # Jev spot-checks these fields; an implausible/empty one stops the crawl.
 JEV_FIELDS = ["name", "price"]
 JEV_SAMPLE_SIZE = 1  # one-item demo; default is 20
-JEV_API_KEY = os.environ.get("TYPESAFE_API_TOKEN")  # export it first (see README)
+
+# Change these configs to Opencode if you're using that instead
+JEV_API_KEY = os.environ.get("TYPESAFE_API_TOKEN")
 JEV_BASE_URL = "https://api.typesafe.ai/v1/systemone"
 JEV_MODEL = "jev-latest"

@@ -22,13 +22,13 @@ Extract Summit 2026
 - "Listed 5 days ago"
 - "Ships from our Reno warehouse within 2-3 business days..."
 
-`exercise/messy_page.html` is all of this, toy-sized so it fits on a screen. The real thing is 300 KB of it.
+`dublin/exercise/messy_page.html` is all of this, toy-sized so it fits on a screen. The real thing is 300 KB of it.
 
 ---
 
 ## What an assistant writes for it today
 
-Asked for a parsel-based extractor for a trimmed version of this page, no other instructions (`hook/vanilla.py`):
+Asked for a parsel-based extractor for a trimmed version of this page, no other instructions (`dublin/hook/vanilla.ipynb`):
 
 ```python
 price = float(f"{dollars}.{cents}")
@@ -39,8 +39,9 @@ days_ago = int(re.search(r"(\d+)", posted_text).group(1))
 posted_at = FETCHED_AT - timedelta(days=days_ago)
 
 origin = re.search(r"from our (\w+) warehouse", shipping_text).group(1)
-min_days, max_days = (int(n) for n in
-    re.search(r"(\d+)-(\d+) business days", shipping_text).groups())
+min_days, max_days = (
+    int(n) for n in re.search(r"(\d+)-(\d+) business days", shipping_text).groups()
+)
 ```
 
 Runs. Passes on this page. Four regexes you now own.
@@ -71,7 +72,7 @@ Every library today is from the Scrapy / Zyte ecosystem.
 
 # Parsing
 
-→ `demo/01_parsing.py`, cell by cell
+→ `dublin/demo/01_parsing.ipynb`, cell by cell
 
 ---
 
@@ -87,13 +88,13 @@ Maintaining per-template selectors stops paying off. Full-page AI extraction (e.
 
 # Cleaning
 
-→ `demo/02_cleaning.py`, cell by cell
+→ `dublin/demo/02_cleaning.ipynb`, cell by cell
 
 ---
 
 # Normalizing
 
-→ `demo/03_normalizing.py`, cell by cell
+→ `dublin/demo/03_normalizing.ipynb`, cell by cell
 
 ---
 
@@ -107,11 +108,14 @@ Scoped to the field also means a small, cheap model is enough: a shipping string
 
 # Hands-on — ~10 minutes
 
-`exercise/starter.py` — 6 `TODO`s, same functions just shown.
+`dublin/exercise/starter.ipynb` — 6 `TODO`s, same functions just shown.
 
 ```
-uv run starter.py
+cd dublin
+docker compose up --build
 ```
+
+Then open http://localhost:8888 and run `exercise/starter.ipynb`.
 
 **Done looks like:**
 ```
@@ -139,7 +143,7 @@ Bonus: the schema *and* the prompt for the shipping field.
 
 ## Same prompt, checklist loaded
 
-`hook/with_checklist.py` — the hook prompt again, with the six lines above prepended:
+`dublin/hook/with_checklist.ipynb` — the hook prompt again, with the six lines above prepended:
 
 ```python
 price = extract_price(sel.css(".price")[0])
@@ -161,23 +165,21 @@ Four fields, still no `business_days`: the checklist picks the libraries, the sc
 
 ## Checking the output: Jev
 
-Everything so far *extracts*. Nothing says the extraction is still right next month.
+We're extracting data, but we're only verifying the *syntax* of the fields. What about *semantics*? Is that price we're crawling a normal dollar amount? Is the name of the item an actual product, or is it a bit of the description? 
 
-[Jev](https://typesafe.ai/) is TypeSafe AI's "System One" model. It doesn't generate text: you give it a `state` and typed questions, and it returns calibrated probabilities. For us: "is this a plausible product name?" → `0.99`.
+[Jev](https://typesafe.ai/) is TypeSafe AI's System One model. It's basically a zero-shot classifier that works on an LLM framework: you give it a `state` and typed questions, and it returns calibrated probabilities. For us: "is this a plausible product name?" → `0.99`.
 
 [scrapy-jev](https://github.com/jhnwr/scrapy-jev) wraps that as a Scrapy item pipeline:
 
 - you list a few `JEV_FIELDS` to spot-check
-- it scores the first `JEV_SAMPLE_SIZE` items; an empty field counts as a fail
+- it scores the first `JEV_SAMPLE_SIZE` items
 - if the pass rate drops below the threshold, the spider stops
-
-A selector drifts, a field comes back empty or wrong, and the crawl halts instead of silently shipping bad data.
 
 ---
 
 ## Demo: page objects + Jev
 
-`dublin/scrapy_project/` — the solution's functions inside a scrapy-poet page object, with `name` and `price` checked by Jev.
+`dublin/scrapy_project/` is a Scrapy project that showcases the exercise functions inside a scrapy-poet page object, with `name` and `price` checked by Jev.
 
 ```
 cd dublin/scrapy_project
@@ -185,7 +187,7 @@ export TYPESAFE_API_TOKEN=...
 scrapy crawl messy
 ```
 
-Then break a selector (`.product h1::text` → `.nope`) and run again: empty `name`, the gate fails, the spider stops.
+Break a selector (`.product h1::text` → `.nope`) and run again: empty `name`, the gate fails, the spider stops.
 
 ---
 
@@ -198,4 +200,6 @@ Then break a selector (`.product h1::text` → `.nope`) and run again: empty `na
 [web-poet](https://github.com/scrapinghub/web-poet), Zyte's page-object library: parsing code that is testable by default, a fixture being the saved response plus the JSON it should produce.
 
 [Zyte MCP](https://docs.zyte.com/zyte-web-data/mcp.html) lets your assistant use Zyte directly: fetch pages, extract data, search the web, and work with your Scrapy Cloud projects.
+
+[scrapy-jev](https://github.com/jhnwr/scrapy-jev) and [Jev](https://typesafe.ai/): the semantic check from the demo. A few lines of `JEV_FIELDS` in `settings.py` and your spider stops when the data stops making sense, even if the syntax is fine.
 
