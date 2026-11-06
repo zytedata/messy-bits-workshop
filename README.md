@@ -24,12 +24,35 @@ cd exercise && uv run starter.py
 For the `# %%` cells in VS Code, open this folder and pick `.venv` as the
 interpreter.
 
+## Running the notebooks with Docker
+
+Prefer Jupyter without installing uv/Python? You only need Docker:
+
+```
+cd dublin
+docker compose up --build
+```
+
+Open http://localhost:8888 (no token). Stop with Ctrl+C. Edits are saved to
+your local folder.
+
+Optional, for `hook/with_checklist.ipynb`:
+
+```
+ANTHROPIC_API_KEY=sk-ant-... docker compose up
+```
+
+On Linux, if your user isn't `1000:1000`, run
+`UID=$(id -u) GID=$(id -g) docker compose up`.
+
 ## Layout
 
 - `hook/`: two LLM answers to the same prompt, quoted on the opening and
   closing slides, plus the prompt that produced them.
 - `demo/`: the three live-coding scripts and the sample pages they read.
 - `exercise/`: the hands-on. Start from `starter.py`, see `README.md` there.
+- `dublin/`: the Dublin version of the workshop: the same demos and exercise
+  as Jupyter notebooks, with the Docker setup and the Scrapy + Jev demo.
 - `slides.md`: the deck, in [Marp](https://marp.app/) format.
 - `tests/`: `uv run pytest` checks that every script still prints what the
   slides say it does.
